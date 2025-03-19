@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../widgets/gradient_background.dart';
 import '../widgets/drawer_menu.dart';
 import 'chat_screen.dart';
 import '../screens/user_settings.dart';
 import '../providers/project_provider.dart';
 import '../utils/api_service.dart';
 import '../services/auth_service.dart';
+
+// ...existing imports...
 
 class LandingScreen extends StatefulWidget {
   const LandingScreen({super.key});
@@ -71,84 +72,85 @@ class _LandingScreenState extends State<LandingScreen> {
       return const Center(child: CircularProgressIndicator());
     }
 
-    return GradientBackground(
-      child: Scaffold(
+    return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+      drawer: DrawerMenu(
+        projects: Provider.of<ProjectProvider>(context).projects,
+        onProjectSelected: (project) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder:
+                  (context) =>
+                      ChatScreen(initialMessage: null, projectId: project),
+            ),
+          );
+        },
+      ),
+      appBar: AppBar(
         backgroundColor: Colors.transparent,
-        drawer: DrawerMenu(
-          projects: Provider.of<ProjectProvider>(context).projects,
-          onProjectSelected: (project) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder:
-                    (context) =>
-                        ChatScreen(initialMessage: null, projectId: project),
-              ),
-            );
-          },
-        ),
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          title: const Text(
-            "BluePrint",
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
+        elevation: 0,
+        title: const Text(
+          "BluePrint",
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: Color.fromARGB(255, 0, 0, 0),
           ),
-          centerTitle: true,
-          leading: Builder(
-            builder:
-                (context) => IconButton(
-                  icon: const Icon(Icons.menu, color: Colors.white),
-                  onPressed: () {
-                    Scaffold.of(context).openDrawer();
-                  },
+        ),
+        centerTitle: true,
+        leading: Builder(
+          builder:
+              (context) => IconButton(
+                icon: const Icon(
+                  Icons.menu,
+                  color: Color.fromARGB(255, 0, 0, 0),
                 ),
-          ),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.person, color: Colors.white),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const UserSettingsScreen(),
-                  ),
-                );
-              },
-            ),
-          ],
-        ),
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const SizedBox(height: 200),
-            Image.asset(
-              'assets/ai_bubble.png',
-              width: 150,
-              height: 150,
-              errorBuilder: (context, error, stackTrace) {
-                return const Icon(Icons.error, size: 50, color: Colors.red);
-              },
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              "Hi there! I'm Blu, your house planning assistant.\nHow can I help you today?",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 18,
-                color: Colors.white,
-                fontWeight: FontWeight.w400,
+                onPressed: () {
+                  Scaffold.of(context).openDrawer();
+                },
               ),
-            ),
-            const Spacer(),
-            _chatInputField(),
-            const SizedBox(height: 20),
-          ],
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.person, color: Color.fromARGB(255, 0, 0, 0)),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const UserSettingsScreen(),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const SizedBox(height: 200),
+          Image.asset(
+            'assets/ai_bubble.png',
+            width: 150,
+            height: 150,
+            errorBuilder: (context, error, stackTrace) {
+              return const Icon(Icons.error, size: 50, color: Colors.red);
+            },
+          ),
+          const SizedBox(height: 20),
+          const Text(
+            "Hi there!\n I'm Blu, your house planning assistant.\nHow can I help you today?",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 18,
+              color: Color.fromARGB(255, 0, 0, 0),
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+          const Spacer(),
+          _chatInputField(),
+          const SizedBox(height: 20),
+        ],
       ),
     );
   }

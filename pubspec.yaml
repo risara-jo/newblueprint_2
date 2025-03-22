@@ -28,7 +28,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   siri_wave: ^2.3.0
   speech_to_text: ^7.0.0
-
+  flutter_svg: ^1.0.3
 
 dev_dependencies:
   flutter_test:
@@ -37,8 +37,18 @@ dev_dependencies:
   mockito: ^5.4.5
   build_runner: ^2.4.14
 
-
 flutter:
   uses-material-design: true
   assets:
     - assets/  # Add your assets folder if needed
+    - assets/fonts/  # Add fonts directory
+    - assets/icons/newproject.svg
+    - assets/icons/professionals.svg # Add your specific SVG asset
+  fonts:
+    - family: Poppins
+      fonts:
+        - asset: assets/fonts/Poppins-Regular.ttf
+        - asset: assets/fonts/Poppins-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Poppins-Italic.ttf
+          style: italic

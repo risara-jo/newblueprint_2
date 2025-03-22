@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:siri_wave/siri_wave.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 
-import '../widgets/gradient_background.dart';
 import '../widgets/drawer_menu.dart';
 import '../screens/chat_screen.dart';
 import '../providers/project_provider.dart';
@@ -19,10 +18,8 @@ class _LandingScreenState extends State<LandingScreen> {
   final TextEditingController _textController = TextEditingController();
   bool _hasText = false;
 
-  // 👇 New additions
   final stt.SpeechToText _speech = stt.SpeechToText();
   bool _isListening = false;
-
   final IOS9SiriWaveformController _siriWaveController =
       IOS9SiriWaveformController();
 
@@ -47,7 +44,6 @@ class _LandingScreenState extends State<LandingScreen> {
     });
   }
 
-  /// ✅ Start new chat
   void _startChat() async {
     String userInput = _textController.text.trim();
     if (userInput.isEmpty) return;
@@ -57,7 +53,7 @@ class _LandingScreenState extends State<LandingScreen> {
       listen: false,
     );
 
-    String projectName = "Project ${projectProvider.projects.length + 1}";
+    String projectName = "Project \${projectProvider.projects.length + 1}";
     await projectProvider.addProjectAndMessage(projectName, userInput, null);
 
     var existingProject = await projectProvider.getProjectByName(projectName);
@@ -78,7 +74,6 @@ class _LandingScreenState extends State<LandingScreen> {
     }
   }
 
-  /// 🎤 Start voice input
   void _startVoiceInput() async {
     bool available = await _speech.initialize(
       onStatus: (status) {
@@ -90,7 +85,7 @@ class _LandingScreenState extends State<LandingScreen> {
         }
       },
       onError: (error) {
-        print("Speech Error: $error");
+        print("Speech Error: \$error");
         setState(() {
           _isListening = false;
           _siriWaveController.amplitude = 0.0;
@@ -119,77 +114,94 @@ class _LandingScreenState extends State<LandingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return GradientBackground(
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        drawer: DrawerMenu(
-          onProjectSelected: (projectId) {
-            final projectProvider = Provider.of<ProjectProvider>(
-              context,
-              listen: false,
-            );
-            final selectedProject = projectProvider.projects.firstWhere(
-              (p) => p.id == projectId,
-            );
+    return Scaffold(
+      backgroundColor: const Color(0xFF202123),
+      drawer: DrawerMenu(
+        onProjectSelected: (projectId) {
+          final projectProvider = Provider.of<ProjectProvider>(
+            context,
+            listen: false,
+          );
+          final selectedProject = projectProvider.projects.firstWhere(
+            (p) => p.id == projectId,
+          );
 
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder:
-                    (context) => ChatScreen(
-                      projectId: selectedProject.id,
-                      projectName: selectedProject.name,
-                    ),
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder:
+                  (context) => ChatScreen(
+                    projectId: selectedProject.id,
+                    projectName: selectedProject.name,
+                  ),
+            ),
+          );
+        },
+      ),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: Builder(
+          builder:
+              (context) => IconButton(
+                icon: const Icon(Icons.menu, color: Colors.white),
+                onPressed: () => Scaffold.of(context).openDrawer(),
               ),
-            );
-          },
         ),
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          title: const Text(
-            "BluePrint",
+        title: const Text.rich(
+          TextSpan(
+            text: 'Blue',
             style: TextStyle(
-              fontSize: 22,
+              fontFamily: 'Poppins',
+              fontSize: 24,
               fontWeight: FontWeight.bold,
               color: Colors.white,
             ),
+            children: [
+              TextSpan(
+                text: 'Print',
+                style: TextStyle(color: Color(0xFF3E80D8)),
+              ),
+            ],
           ),
-          centerTitle: true,
         ),
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const SizedBox(height: 150),
-            const Text(
-              "Hi there! I'm Blu, your house planning assistant.\nHow can I help you today?",
+        centerTitle: true,
+      ),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const SizedBox(height: 200),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20.0),
+            child: Text(
+              "Hi there human, I’m Blu.\nYour personal house planing assistant.\n\nHow can I help you today?",
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 18, color: Colors.white),
+              style: TextStyle(
+                fontFamily: 'Poppins',
+                fontSize: 22,
+                color: Colors.white,
+              ),
             ),
-
-            const Spacer(),
-
-            // 🎙️ Siri Wave
+          ),
+          const Spacer(),
+          // Show Siri waveform only if _isListening is true
+          if (_isListening)
             SiriWaveform.ios9(
               controller: _siriWaveController,
               options: const IOS9SiriWaveformOptions(
-                height: 50,
-                width: 300,
+                height: 80,
+                width: 500,
                 showSupportBar: true,
               ),
             ),
-
-            const SizedBox(height: 10),
-
-            _chatInputField(),
-            const SizedBox(height: 20),
-          ],
-        ),
+          const SizedBox(height: 10),
+          _chatInputField(),
+          const SizedBox(height: 20),
+        ],
       ),
     );
   }
 
-  /// 💬 Chat Input + Mic Button
   Widget _chatInputField() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -197,11 +209,15 @@ class _LandingScreenState extends State<LandingScreen> {
         children: [
           Expanded(
             child: TextField(
+              style: const TextStyle(
+                fontFamily: 'Poppins',
+                color: Color.fromARGB(255, 255, 255, 255),
+              ),
               controller: _textController,
               decoration: InputDecoration(
-                hintText: "Describe your floor plan...",
+                hintText: "",
                 filled: true,
-                fillColor: Colors.white,
+                fillColor: const Color.fromARGB(255, 59, 59, 59),
                 border: const OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(30)),
                   borderSide: BorderSide.none,
@@ -210,11 +226,31 @@ class _LandingScreenState extends State<LandingScreen> {
             ),
           ),
           const SizedBox(width: 10),
-
-          FloatingActionButton(
-            backgroundColor: Colors.blue.shade900,
-            onPressed: _hasText ? _startChat : _startVoiceInput,
-            child: Icon(_hasText ? Icons.send : Icons.mic, color: Colors.white),
+          Container(
+            height: 48,
+            width: 48,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: const LinearGradient(
+                colors: [Color(0xFF0056A4), Color(0xFF3E80D8)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.3),
+                  offset: const Offset(0, 3),
+                  blurRadius: 6,
+                ),
+              ],
+            ),
+            child: IconButton(
+              icon: Icon(
+                _hasText ? Icons.send : Icons.mic,
+                color: Colors.white,
+              ),
+              onPressed: _hasText ? _startChat : _startVoiceInput,
+            ),
           ),
         ],
       ),

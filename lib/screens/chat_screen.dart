@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../widgets/voice_input_bar.dart'; // ✅ Reusable widget
 import '../providers/project_provider.dart';
 import '../models/project_model.dart';
 
@@ -18,7 +19,6 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  final TextEditingController _controller = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   bool _isProcessing = false;
 
@@ -50,14 +50,10 @@ class _ChatScreenState extends State<ChatScreen> {
       sender: "user",
     );
 
-    _controller.clear();
     _scrollToBottom();
 
     try {
-      String imageUrl = await projectProvider.generateFloorPlan(
-        widget.projectId,
-        userInput,
-      );
+      await projectProvider.generateFloorPlan(widget.projectId, userInput);
     } catch (e) {
       await projectProvider.addMessage(
         projectId: widget.projectId,
@@ -142,7 +138,7 @@ class _ChatScreenState extends State<ChatScreen> {
               },
             ),
           ),
-          _chatInputField(),
+          VoiceInputBar(onSubmit: (userInput) => _sendMessage(userInput)),
         ],
       ),
     );
@@ -169,7 +165,7 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
             child: Text(
               text,
-              style: TextStyle(fontSize: 16, color: Colors.white),
+              style: const TextStyle(fontSize: 16, color: Colors.white),
             ),
           ),
           if (imageUrl != null && imageUrl.isNotEmpty)
@@ -193,49 +189,6 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
               ),
             ),
-        ],
-      ),
-    );
-  }
-
-  Widget _chatInputField() {
-    return Container(
-      color: const Color(0xFF2A2B2E),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      child: Row(
-        children: [
-          Expanded(
-            child: TextField(
-              controller: _controller,
-              style: const TextStyle(color: Colors.white),
-              decoration: InputDecoration(
-                hintText: "Describe your floor plan...",
-                hintStyle: const TextStyle(color: Colors.white54),
-                filled: true,
-                fillColor: const Color(0xFF202123),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 8),
-          IconButton(
-            icon:
-                _isProcessing
-                    ? const CircularProgressIndicator(
-                      color: Color(0xFF3E80D8),
-                      strokeWidth: 2,
-                    )
-                    : const Icon(Icons.send, color: Color(0xFF3E80D8)),
-            onPressed:
-                _isProcessing ? null : () => _sendMessage(_controller.text),
-          ),
         ],
       ),
     );

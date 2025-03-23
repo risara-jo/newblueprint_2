@@ -73,7 +73,7 @@ class _SetupScreen4State extends State<SetupScreen4> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFF202123),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24),
         child: Column(

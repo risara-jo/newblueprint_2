@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../theme.dart';
 
 class VendorDetailsScreen extends StatelessWidget {
   final String name;
@@ -37,7 +38,7 @@ class VendorDetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.background,
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -45,43 +46,41 @@ class VendorDetailsScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 50),
-
-              // 🔙 Back Button & App Title
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.arrow_back, color: Colors.black),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
+                    icon: const Icon(Icons.arrow_back, color: AppColors.white),
+                    onPressed: () => Navigator.pop(context),
                   ),
-                  Text(
-                    "BluePrint",
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blue[900],
+                  const Text.rich(
+                    TextSpan(
+                      text: 'Blue',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.white,
+                      ),
+                      children: [
+                        TextSpan(
+                          text: 'Print',
+                          style: TextStyle(color: AppColors.primary),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(width: 48), // Placeholder for alignment
+                  const SizedBox(width: 48),
                 ],
               ),
-
               const SizedBox(height: 20),
-
-              // 🔹 Vendor Image & Details
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  // Vendor Image
                   CircleAvatar(
                     radius: 40,
                     backgroundImage: NetworkImage(imageUrl),
                   ),
                   const SizedBox(width: 16),
-
-                  // Name, Specialization, and Favorite Button
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -91,52 +90,54 @@ class VendorDetailsScreen extends StatelessWidget {
                           style: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
+                            color: AppColors.white,
                           ),
                         ),
                         Text(
                           specialization,
                           style: const TextStyle(
                             fontSize: 14,
-                            color: Colors.grey,
+                            color: AppColors.white70,
                           ),
                         ),
                       ],
                     ),
                   ),
-
-                  // Add to Favourite Button
                   OutlinedButton.icon(
-                    onPressed: () {
-                      // TODO: Implement favorite function
-                    },
-                    icon: const Icon(Icons.favorite_border, color: Colors.blue),
+                    onPressed: () {},
+                    icon: const Icon(
+                      Icons.favorite_border,
+                      color: AppColors.primary,
+                    ),
                     label: const Text(
                       "Add to favourite",
-                      style: TextStyle(color: Colors.blue),
+                      style: TextStyle(color: AppColors.primary),
                     ),
                   ),
                 ],
               ),
-
               const SizedBox(height: 20),
-
-              // 🔹 About Section
               const Text(
                 "About the Architect",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.white,
+                ),
               ),
               const SizedBox(height: 5),
               Text(
                 description,
-                style: const TextStyle(fontSize: 14, color: Colors.grey),
+                style: const TextStyle(fontSize: 14, color: AppColors.white70),
               ),
-
               const SizedBox(height: 15),
-
-              // 🔹 Services Provided
               const Text(
                 "Services provide",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.white,
+                ),
               ),
               const SizedBox(height: 5),
               Column(
@@ -150,13 +151,16 @@ class VendorDetailsScreen extends StatelessWidget {
                               children: [
                                 const Icon(
                                   Icons.check,
-                                  color: Colors.blue,
+                                  color: AppColors.primary,
                                   size: 16,
                                 ),
                                 const SizedBox(width: 8),
                                 Text(
                                   service,
-                                  style: const TextStyle(fontSize: 14),
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    color: AppColors.white,
+                                  ),
                                 ),
                               ],
                             ),
@@ -164,16 +168,13 @@ class VendorDetailsScreen extends StatelessWidget {
                         )
                         .toList(),
               ),
-
               const SizedBox(height: 30),
-
-              // 🔹 Contact Button
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: _contactVendor,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
+                    backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
@@ -186,7 +187,6 @@ class VendorDetailsScreen extends StatelessWidget {
                   ),
                 ),
               ),
-
               const SizedBox(height: 20),
             ],
           ),

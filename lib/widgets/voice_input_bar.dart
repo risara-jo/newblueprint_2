@@ -101,7 +101,7 @@ class _VoiceInputBarState extends State<VoiceInputBar> {
                     color: Colors.white,
                   ),
                   decoration: InputDecoration(
-                    hintText: "Say or type something...",
+                    hintText: "Discribe your floor plan...",
                     hintStyle: const TextStyle(color: Colors.white54),
                     filled: true,
                     fillColor: const Color.fromARGB(255, 59, 59, 59),

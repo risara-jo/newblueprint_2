@@ -44,7 +44,7 @@ class _SetupScreen3State extends State<SetupScreen3> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFF202123),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24),
         child: Column(
@@ -84,7 +84,7 @@ class _SetupScreen3State extends State<SetupScreen3> {
                     decoration: InputDecoration(
                       hintText: "Enter your password",
                       filled: true,
-                      fillColor: Colors.grey[200],
+                      fillColor: Color.fromARGB(255, 41, 41, 41),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide.none,
@@ -124,7 +124,7 @@ class _SetupScreen3State extends State<SetupScreen3> {
                     decoration: InputDecoration(
                       hintText: "Confirm your password",
                       filled: true,
-                      fillColor: Colors.grey[200],
+                      fillColor: Color.fromARGB(255, 41, 41, 41),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide.none,

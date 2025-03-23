@@ -26,7 +26,7 @@ class _SetupScreen1State extends State<SetupScreen1> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFF202123),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24),
         child: Column(
@@ -63,7 +63,7 @@ class _SetupScreen1State extends State<SetupScreen1> {
                 decoration: InputDecoration(
                   hintText: "Enter your email",
                   filled: true,
-                  fillColor: Colors.grey[200],
+                  fillColor: Color.fromARGB(255, 41, 41, 41),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                     borderSide: BorderSide.none,

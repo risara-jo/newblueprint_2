@@ -1,11 +1,11 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:image_picker/image_picker.dart';
+import '../theme.dart';
 
 class VendorFormScreen extends StatefulWidget {
   const VendorFormScreen({super.key});
@@ -15,23 +15,20 @@ class VendorFormScreen extends StatefulWidget {
 }
 
 class _VendorFormScreenState extends State<VendorFormScreen> {
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _phoneController = TextEditingController();
-  final TextEditingController _whatsappController = TextEditingController();
-  final TextEditingController _descriptionController = TextEditingController();
-  final TextEditingController _specializationController =
-      TextEditingController();
-
-  final TextEditingController _service1Controller = TextEditingController();
-  final TextEditingController _service2Controller = TextEditingController();
-  final TextEditingController _service3Controller = TextEditingController();
+  final _nameController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _whatsappController = TextEditingController();
+  final _descriptionController = TextEditingController();
+  final _specializationController = TextEditingController();
+  final _service1Controller = TextEditingController();
+  final _service2Controller = TextEditingController();
+  final _service3Controller = TextEditingController();
 
   bool _locationEnabled = false;
   Position? _currentPosition;
   File? _image;
   bool _isSubmitting = false;
 
-  /// ✅ **Get User Location**
   Future<void> _getLocation() async {
     try {
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
@@ -51,7 +48,6 @@ class _VendorFormScreenState extends State<VendorFormScreen> {
     }
   }
 
-  /// ✅ **Pick Image**
   Future<void> _pickImage() async {
     final pickedFile = await ImagePicker().pickImage(
       source: ImageSource.gallery,
@@ -63,7 +59,6 @@ class _VendorFormScreenState extends State<VendorFormScreen> {
     }
   }
 
-  /// ✅ **Upload Image & Return URL**
   Future<String> _uploadImage(File imageFile, String vendorId) async {
     try {
       Reference ref = FirebaseStorage.instance.ref().child(
@@ -77,7 +72,6 @@ class _VendorFormScreenState extends State<VendorFormScreen> {
     }
   }
 
-  /// ✅ **Generate Unique Vendor ID**
   Future<String> _getNewVendorId() async {
     try {
       QuerySnapshot snapshot =
@@ -86,15 +80,14 @@ class _VendorFormScreenState extends State<VendorFormScreen> {
       return "vendorId$nextId";
     } catch (e) {
       print("🔥 Error generating Vendor ID: $e");
-      return "vendorId999"; // Fallback ID
+      return "vendorId999";
     }
   }
 
-  /// ✅ **Submit Form**
   Future<void> _submitForm() async {
     if (_nameController.text.isEmpty || _phoneController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text("Vendor Name and Phone are required."),
           backgroundColor: Colors.red,
         ),
@@ -102,29 +95,19 @@ class _VendorFormScreenState extends State<VendorFormScreen> {
       return;
     }
 
-    setState(() {
-      _isSubmitting = true;
-    });
+    setState(() => _isSubmitting = true);
 
     String? userId = FirebaseAuth.instance.currentUser?.uid;
-
     String vendorId = await _getNewVendorId();
-    String imageUrl = "";
+    String imageUrl =
+        _image != null ? await _uploadImage(_image!, vendorId) : "";
 
-    if (_image != null) {
-      imageUrl = await _uploadImage(_image!, vendorId);
-    }
-
-    List<String> services = [];
-    if (_service1Controller.text.isNotEmpty) {
-      services.add(_service1Controller.text);
-    }
-    if (_service2Controller.text.isNotEmpty) {
-      services.add(_service2Controller.text);
-    }
-    if (_service3Controller.text.isNotEmpty) {
-      services.add(_service3Controller.text);
-    }
+    List<String> services =
+        [
+          _service1Controller.text,
+          _service2Controller.text,
+          _service3Controller.text,
+        ].where((s) => s.isNotEmpty).toList();
 
     Map<String, dynamic> vendorData = {
       "name": _nameController.text,
@@ -151,7 +134,7 @@ class _VendorFormScreenState extends State<VendorFormScreen> {
           .doc(vendorId)
           .set(vendorData);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text("Advertisement Submitted Successfully!"),
           backgroundColor: Colors.green,
         ),
@@ -160,19 +143,16 @@ class _VendorFormScreenState extends State<VendorFormScreen> {
     } catch (e) {
       print("🔥 Firestore Write Error: $e");
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text("Error submitting advertisement."),
           backgroundColor: Colors.red,
         ),
       );
     }
 
-    setState(() {
-      _isSubmitting = false;
-    });
+    setState(() => _isSubmitting = false);
   }
 
-  /// ✅ **Reset Form After Submission**
   void _resetForm() {
     _nameController.clear();
     _phoneController.clear();
@@ -189,50 +169,89 @@ class _VendorFormScreenState extends State<VendorFormScreen> {
     });
   }
 
+  InputDecoration _inputDecoration(String label) {
+    return InputDecoration(
+      labelText: label,
+      labelStyle: const TextStyle(color: AppColors.textHint),
+      filled: true,
+      fillColor: AppColors.surface,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Vendor Registration")),
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        title: const Text(
+          "Vendor Registration",
+          style: TextStyle(color: AppColors.white),
+        ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: AppColors.white),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
             _image != null
                 ? CircleAvatar(backgroundImage: FileImage(_image!), radius: 50)
-                : CircleAvatar(radius: 50, child: Icon(Icons.camera_alt)),
-            TextButton(onPressed: _pickImage, child: Text("Pick Image")),
+                : const CircleAvatar(radius: 50, child: Icon(Icons.camera_alt)),
+            TextButton(onPressed: _pickImage, child: const Text("Pick Image")),
+            const SizedBox(height: 8),
             TextField(
               controller: _nameController,
-              decoration: InputDecoration(labelText: "Vendor Name"),
+              style: const TextStyle(color: Colors.white),
+              decoration: _inputDecoration("Vendor Name"),
             ),
+            const SizedBox(height: 8),
             TextField(
               controller: _phoneController,
-              decoration: InputDecoration(labelText: "Phone"),
+              style: const TextStyle(color: Colors.white),
+              decoration: _inputDecoration("Phone"),
             ),
+            const SizedBox(height: 8),
             TextField(
               controller: _whatsappController,
-              decoration: InputDecoration(labelText: "WhatsApp"),
+              style: const TextStyle(color: Colors.white),
+              decoration: _inputDecoration("WhatsApp"),
             ),
+            const SizedBox(height: 8),
             TextField(
               controller: _specializationController,
-              decoration: InputDecoration(labelText: "Specialization"),
+              style: const TextStyle(color: Colors.white),
+              decoration: _inputDecoration("Specialization"),
             ),
+            const SizedBox(height: 8),
             TextField(
               controller: _descriptionController,
-              decoration: InputDecoration(labelText: "Description"),
+              style: const TextStyle(color: Colors.white),
+              decoration: _inputDecoration("Description"),
             ),
+            const SizedBox(height: 8),
             TextField(
               controller: _service1Controller,
-              decoration: InputDecoration(labelText: "Service 1 (Optional)"),
+              style: const TextStyle(color: Colors.white),
+              decoration: _inputDecoration("Service 1 (Optional)"),
             ),
+            const SizedBox(height: 8),
             TextField(
               controller: _service2Controller,
-              decoration: InputDecoration(labelText: "Service 2 (Optional)"),
+              style: const TextStyle(color: Colors.white),
+              decoration: _inputDecoration("Service 2 (Optional)"),
             ),
+            const SizedBox(height: 8),
             TextField(
               controller: _service3Controller,
-              decoration: InputDecoration(labelText: "Service 3 (Optional)"),
+              style: const TextStyle(color: Colors.white),
+              decoration: _inputDecoration("Service 3 (Optional)"),
             ),
+            const SizedBox(height: 8),
             Row(
               children: [
                 Checkbox(
@@ -240,19 +259,29 @@ class _VendorFormScreenState extends State<VendorFormScreen> {
                   onChanged:
                       (value) => setState(() => _locationEnabled = value!),
                 ),
-                Text("Allow Location"),
+                const Text(
+                  "Allow Location",
+                  style: TextStyle(color: Colors.white),
+                ),
               ],
             ),
             ElevatedButton(
               onPressed: _getLocation,
-              child: Text("Get Location"),
+              child: const Text("Get Location"),
             ),
+            const SizedBox(height: 10),
             ElevatedButton(
-              onPressed: _submitForm,
+              onPressed: _isSubmitting ? null : _submitForm,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+              ),
               child:
                   _isSubmitting
-                      ? CircularProgressIndicator()
-                      : Text("Submit Advertisement"),
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Text(
+                        "Submit Advertisement",
+                        style: TextStyle(color: Colors.white),
+                      ),
             ),
           ],
         ),

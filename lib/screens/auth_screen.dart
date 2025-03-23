@@ -2,8 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/auth_service.dart';
-import 'setup_screen1.dart'; // ✅ First setup screen
-// ✅ Ensure navigation to home screen
+import 'setup_screen1.dart';
+import '../theme.dart'; // ✅ Import AppColors
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -16,7 +16,6 @@ class _AuthScreenState extends State<AuthScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
   bool _isLoading = false;
 
   void _submitAuthForm() async {
@@ -32,23 +31,14 @@ class _AuthScreenState extends State<AuthScreen> {
             );
 
         if (userCredential.user != null) {
-          debugPrint("✅ Login Successful! Navigating to LandingScreen...");
-
           Navigator.pushReplacementNamed(context, '/landing');
-        } else {
-          throw FirebaseAuthException(
-            code: "user-not-found",
-            message: "No user found with this email.",
-          );
         }
       }
     } on FirebaseAuthException catch (e) {
-      debugPrint("❌ SignIn Error: ${e.message}");
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text("Login Failed: ${e.message}")));
     } catch (error) {
-      debugPrint("❌ Unexpected Error: $error");
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text("Unexpected Error: $error")));
@@ -57,10 +47,24 @@ class _AuthScreenState extends State<AuthScreen> {
     setState(() => _isLoading = false);
   }
 
+  InputDecoration _inputDecoration(String hint) {
+    return InputDecoration(
+      hintText: hint,
+      hintStyle: const TextStyle(color: AppColors.textHint),
+      filled: true,
+      fillColor: AppColors.surface,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide.none,
+      ),
+      contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF202123),
+      backgroundColor: AppColors.background,
       body: Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -77,7 +81,7 @@ class _AuthScreenState extends State<AuthScreen> {
                         style: TextStyle(
                           fontSize: 36,
                           fontWeight: FontWeight.bold,
-                          color: Color.fromARGB(255, 255, 255, 255),
+                          color: AppColors.white,
                         ),
                       ),
                       TextSpan(
@@ -85,73 +89,50 @@ class _AuthScreenState extends State<AuthScreen> {
                         style: TextStyle(
                           fontSize: 36,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF3E80D8),
+                          color: AppColors.primary,
                         ),
                       ),
                     ],
                   ),
                 ),
                 const SizedBox(height: 40),
-
-                // ✅ Email Field
                 TextFormField(
                   controller: _emailController,
-                  decoration: InputDecoration(
-                    hintText: "Email or username",
-                    filled: true,
-                    fillColor: Colors.grey[200],
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide.none,
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      vertical: 16,
-                      horizontal: 16,
-                    ),
+                  style: const TextStyle(
+                    color: Color.fromARGB(255, 142, 142, 142),
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return "Please enter your email or username";
-                    }
-                    return null;
-                  },
+                  decoration: _inputDecoration("Email or username"),
+                  validator:
+                      (value) =>
+                          value == null || value.isEmpty ? "Enter email" : null,
                 ),
                 const SizedBox(height: 16),
-
-                // ✅ Password Field
                 TextFormField(
                   controller: _passwordController,
                   obscureText: true,
-                  decoration: InputDecoration(
-                    hintText: "Password",
-                    filled: true,
-                    fillColor: Colors.grey[200],
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide.none,
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      vertical: 16,
-                      horizontal: 16,
-                    ),
-                    suffixIcon: const Icon(Icons.visibility_off),
+                  style: const TextStyle(
+                    color: Color.fromARGB(255, 132, 132, 132),
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return "Please enter your password";
-                    }
-                    return null;
-                  },
+                  decoration: _inputDecoration("Password").copyWith(
+                    suffixIcon: const Icon(
+                      Icons.visibility_off,
+                      color: Color.fromARGB(255, 255, 255, 255),
+                    ),
+                  ),
+                  validator:
+                      (value) =>
+                          value == null || value.isEmpty
+                              ? "Enter password"
+                              : null,
                 ),
                 const SizedBox(height: 24),
-
-                // ✅ Login Button
                 _isLoading
                     ? const CircularProgressIndicator()
                     : ElevatedButton(
                       onPressed: _submitAuthForm,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFF3E80D8),
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
@@ -159,26 +140,30 @@ class _AuthScreenState extends State<AuthScreen> {
                       ),
                       child: const Text(
                         "Login",
-                        style: TextStyle(fontSize: 18, color: Colors.white),
+                        style: TextStyle(fontSize: 18),
                       ),
                     ),
                 const SizedBox(height: 10),
-
-                // ✅ Navigate to Account Setup
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text("Don't have an account?"),
+                    const Text(
+                      "Don't have an account?",
+                      style: TextStyle(color: AppColors.white70),
+                    ),
                     TextButton(
                       onPressed: () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const SetupScreen1(),
+                            builder: (_) => const SetupScreen1(),
                           ),
                         );
                       },
-                      child: const Text("Create account"),
+                      child: const Text(
+                        "Create account",
+                        style: TextStyle(color: AppColors.primary),
+                      ),
                     ),
                   ],
                 ),

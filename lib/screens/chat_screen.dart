@@ -44,7 +44,6 @@ class _ChatScreenState extends State<ChatScreen> {
 
     setState(() => _isProcessing = true);
 
-    // ✅ Add user message first
     await projectProvider.addMessage(
       projectId: widget.projectId,
       text: userInput,
@@ -55,24 +54,19 @@ class _ChatScreenState extends State<ChatScreen> {
     _scrollToBottom();
 
     try {
-      // ✅ Pass projectId along with userInput (Fix Argument Issue)
       String imageUrl = await projectProvider.generateFloorPlan(
-        widget.projectId, // 🔥 Ensure projectId is passed
+        widget.projectId,
         userInput,
       );
-
-      setState(() => _isProcessing = false);
-
-      // ✅ Store bot response and generated image in Firestore
-      _scrollToBottom();
     } catch (e) {
-      setState(() => _isProcessing = false);
-
       await projectProvider.addMessage(
         projectId: widget.projectId,
         text: "❌ Error generating floor plan. Try again.",
         sender: "bot",
       );
+    } finally {
+      setState(() => _isProcessing = false);
+      _scrollToBottom();
     }
   }
 
@@ -91,7 +85,29 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(widget.projectName)),
+      backgroundColor: const Color(0xFF202123),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
+        title: Text.rich(
+          TextSpan(
+            text: 'Blue',
+            style: TextStyle(
+              fontFamily: 'Poppins',
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+            children: [
+              TextSpan(
+                text: 'Print',
+                style: TextStyle(color: Color(0xFF3E80D8)),
+              ),
+            ],
+          ),
+        ),
+      ),
       body: Column(
         children: [
           Expanded(
@@ -103,7 +119,12 @@ class _ChatScreenState extends State<ChatScreen> {
                 );
 
                 if (project.messages.isEmpty) {
-                  return const Center(child: Text("No messages found."));
+                  return const Center(
+                    child: Text(
+                      "No messages found.",
+                      style: TextStyle(color: Colors.white70),
+                    ),
+                  );
                 }
 
                 return ListView.builder(
@@ -140,25 +161,22 @@ class _ChatScreenState extends State<ChatScreen> {
             isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         children: [
           Container(
-            margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-            padding: const EdgeInsets.all(12),
+            margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 12),
+            padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: isUser ? Colors.blue.shade700 : Colors.white,
-              borderRadius: BorderRadius.circular(20),
+              color: isUser ? Color(0xFF3E80D8) : Color(0xFF2A2B2E),
+              borderRadius: BorderRadius.circular(18),
             ),
             child: Text(
               text,
-              style: TextStyle(
-                fontSize: 16,
-                color: isUser ? Colors.white : Colors.black,
-              ),
+              style: TextStyle(fontSize: 16, color: Colors.white),
             ),
           ),
           if (imageUrl != null && imageUrl.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(top: 8.0),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(12), // 🔥 Rounded corners
+                borderRadius: BorderRadius.circular(12),
                 child: Image.network(
                   imageUrl,
                   fit: BoxFit.contain,
@@ -181,21 +199,42 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Widget _chatInputField() {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
+    return Container(
+      color: const Color(0xFF2A2B2E),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       child: Row(
         children: [
           Expanded(
             child: TextField(
               controller: _controller,
-              decoration: const InputDecoration(
+              style: const TextStyle(color: Colors.white),
+              decoration: InputDecoration(
                 hintText: "Describe your floor plan...",
+                hintStyle: const TextStyle(color: Colors.white54),
+                filled: true,
+                fillColor: const Color(0xFF202123),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  borderSide: BorderSide.none,
+                ),
               ),
             ),
           ),
+          const SizedBox(width: 8),
           IconButton(
-            icon: const Icon(Icons.send),
-            onPressed: () => _sendMessage(_controller.text),
+            icon:
+                _isProcessing
+                    ? const CircularProgressIndicator(
+                      color: Color(0xFF3E80D8),
+                      strokeWidth: 2,
+                    )
+                    : const Icon(Icons.send, color: Color(0xFF3E80D8)),
+            onPressed:
+                _isProcessing ? null : () => _sendMessage(_controller.text),
           ),
         ],
       ),

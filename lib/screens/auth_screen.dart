@@ -60,7 +60,7 @@ class _AuthScreenState extends State<AuthScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFF202123),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -69,12 +69,26 @@ class _AuthScreenState extends State<AuthScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text(
-                  "BluePrint",
-                  style: TextStyle(
-                    fontSize: 36,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
+                RichText(
+                  text: const TextSpan(
+                    children: [
+                      TextSpan(
+                        text: "Blue",
+                        style: TextStyle(
+                          fontSize: 36,
+                          fontWeight: FontWeight.bold,
+                          color: Color.fromARGB(255, 255, 255, 255),
+                        ),
+                      ),
+                      TextSpan(
+                        text: "Print",
+                        style: TextStyle(
+                          fontSize: 36,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF3E80D8),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 40),
@@ -137,7 +151,7 @@ class _AuthScreenState extends State<AuthScreen> {
                     : ElevatedButton(
                       onPressed: _submitAuthForm,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
+                        backgroundColor: Color(0xFF3E80D8),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),

@@ -41,11 +41,13 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - assets/  # Add your assets folder if needed
-    - assets/fonts/  # Add fonts directory
+    - assets/
+    - assets/fonts/
     - assets/icons/newproject.svg
-    - assets/icons/professionals.svg # Add your specific SVG asset
+    - assets/icons/professionals.svg
+    - assets/icons/gallery.svg     # ✅ Added Community Gallery icon
     - assets/animations/landingscreenanimation.json
+
   fonts:
     - family: Poppins
       fonts:

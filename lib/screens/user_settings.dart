@@ -4,14 +4,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'profile_edit.dart';
 
-class UserProfile extends StatefulWidget {
-  const UserProfile({super.key});
+class UserSettingsScreen extends StatefulWidget {
+  const UserSettingsScreen({super.key});
 
   @override
-  State<UserProfile> createState() => _UserProfileState();
+  State<UserSettingsScreen> createState() => _UserSettingsScreenState();
 }
 
-class _UserProfileState extends State<UserProfile> {
+class _UserSettingsScreenState extends State<UserSettingsScreen> {
   String name = '';
   String email = '';
   String phone = '';
@@ -144,7 +144,6 @@ class _UserProfileState extends State<UserProfile> {
                           const Text('Back', style: TextStyle(fontSize: 16)),
                           GestureDetector(
                             onTap: () {
-                              // Keep using Edit page if required
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -156,7 +155,7 @@ class _UserProfileState extends State<UserProfile> {
                                           phone: phone,
                                           address: address,
                                         ),
-                                      ), // optional
+                                      ),
                                 ),
                               );
                             },

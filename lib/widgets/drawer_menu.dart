@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+
 import '../providers/project_provider.dart';
-import '../screens/user_settings.dart';
+import '../screens/user_settings.dart'; // ✅ Uses UserSettingsScreen now
 import '../screens/vendor_list_screen.dart';
 import '../screens/community_gallery_screen.dart';
+import '../screens/chat_screen.dart';
 import '../services/auth_service.dart';
-import '../screens/chat_screen.dart'; // ✅ Make sure this import is added
+import '../theme.dart';
 
 class DrawerMenu extends StatelessWidget {
   final Function(String projectId)? onProjectSelected;
@@ -20,120 +23,161 @@ class DrawerMenu extends StatelessWidget {
         final user = authService.currentUser;
 
         return Drawer(
+          backgroundColor: AppColors.background,
           child: Column(
             children: [
               const SizedBox(height: 40),
 
-              _drawerItem(
-                Icons.add_circle,
-                "New Project",
-                Colors.blue,
-                () async {
-                  String projectName =
-                      "Project ${projectProvider.projects.length + 1}";
+              // 🔹 Action Buttons
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Column(
+                  children: [
+                    _drawerItem(
+                      null,
+                      "New Project",
+                      AppColors.primary,
+                      () async {
+                        String projectName =
+                            "Project ${projectProvider.projects.length + 1}";
+                        await projectProvider.addProjectAndMessage(
+                          projectName,
+                          "New project created",
+                          null,
+                        );
 
-                  await projectProvider.addProjectAndMessage(
-                    projectName,
-                    "New project created",
-                    null,
-                  );
-
-                  if (onProjectSelected != null) {
-                    final newProject = await projectProvider.getProjectByName(
-                      projectName,
-                    );
-                    if (newProject != null) {
-                      onProjectSelected!(newProject.id);
-                    }
-                  }
-                },
+                        if (onProjectSelected != null) {
+                          final newProject = await projectProvider
+                              .getProjectByName(projectName);
+                          if (newProject != null)
+                            onProjectSelected!(newProject.id);
+                        }
+                      },
+                      svgAsset: 'assets/icons/newproject.svg',
+                      iconSize: 24,
+                    ),
+                    _drawerItem(
+                      null,
+                      "Professionals",
+                      AppColors.primary,
+                      () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const VendorListScreen(),
+                          ),
+                        );
+                      },
+                      svgAsset: 'assets/icons/professionals.svg',
+                      iconSize: 22,
+                    ),
+                    _drawerItem(
+                      null,
+                      "Community Gallery",
+                      AppColors.primary,
+                      () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const CommunityGalleryScreen(),
+                          ),
+                        );
+                      },
+                      svgAsset: 'assets/icons/gallery.svg',
+                      iconSize: 22,
+                    ),
+                  ],
+                ),
               ),
-
-              _drawerItem(Icons.explore, "Contact a Vendor", Colors.blue, () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => VendorListScreen()),
-                );
-              }),
-
-              _drawerItem(Icons.public, "Community Gallery", Colors.blue, () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => CommunityGalleryScreen(),
-                  ),
-                );
-              }),
 
               const Divider(),
 
+              // 🔹 Project List
               Expanded(
                 child:
                     projectProvider.projects.isEmpty
-                        ? const Center(child: Text("No projects found."))
+                        ? const Center(
+                          child: Text(
+                            "No projects found.",
+                            style: TextStyle(color: AppColors.white70),
+                          ),
+                        )
                         : ListView.builder(
                           itemCount: projectProvider.projects.length,
                           itemBuilder: (context, index) {
                             final project = projectProvider.projects[index];
-                            return ListTile(
-                              title: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      project.name,
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                  PopupMenuButton<String>(
-                                    onSelected: (value) {
-                                      if (value == 'rename') {
-                                        _showRenameDialog(
-                                          context,
-                                          project.id,
-                                          project.name,
-                                        );
-                                      }
-                                    },
-                                    itemBuilder:
-                                        (context) => [
-                                          const PopupMenuItem(
-                                            value: 'rename',
-                                            child: Text("Rename"),
-                                          ),
-                                        ],
-                                  ),
-                                ],
+                            return Card(
+                              color: const Color(0xFF2C2C2E),
+                              margin: const EdgeInsets.symmetric(
+                                vertical: 5,
+                                horizontal: 10,
                               ),
-                              trailing: IconButton(
-                                icon: const Icon(
-                                  Icons.delete,
-                                  color: Colors.red,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: ListTile(
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
                                 ),
-                                onPressed: () async {
-                                  // TODO: Implement delete functionality
+                                title: Text(
+                                  project.name,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w500,
+                                    fontFamily: 'Poppins',
+                                    color: Colors.white,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    IconButton(
+                                      icon: const Icon(
+                                        Icons.edit,
+                                        size: 20,
+                                        color: Colors.white70,
+                                      ),
+                                      onPressed:
+                                          () => _showRenameDialog(
+                                            context,
+                                            project.id,
+                                            project.name,
+                                          ),
+                                      tooltip: "Rename Project",
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(
+                                        Icons.delete_forever,
+                                        color: Colors.red,
+                                        size: 20,
+                                      ),
+                                      onPressed:
+                                          () => _confirmDelete(
+                                            context,
+                                            projectProvider,
+                                            project.id,
+                                          ),
+                                      tooltip: "Delete Project",
+                                    ),
+                                  ],
+                                ),
+                                onTap: () async {
+                                  Navigator.pop(context);
+                                  await projectProvider.loadProjectChat(
+                                    project.id,
+                                  );
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (_) => ChatScreen(
+                                            projectId: project.id,
+                                            projectName: project.name,
+                                          ),
+                                    ),
+                                  );
                                 },
                               ),
-                              onTap: () async {
-                                Navigator.pop(context); // Close drawer
-                                await projectProvider.loadProjectChat(
-                                  project.id,
-                                );
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder:
-                                        (context) => ChatScreen(
-                                          projectId: project.id,
-                                          projectName: project.name,
-                                        ),
-                                  ),
-                                );
-                              },
                             );
                           },
                         ),
@@ -141,19 +185,26 @@ class DrawerMenu extends StatelessWidget {
 
               const Divider(),
 
+              // 🔹 Footer - User Info
               ListTile(
                 leading: CircleAvatar(
                   radius: 22,
-                  backgroundColor: Colors.blue.shade100,
-                  child: const Icon(Icons.person, color: Colors.blue, size: 28),
+                  backgroundColor: AppColors.primary.withOpacity(0.2),
+                  child: const Icon(Icons.person, color: AppColors.primary),
                 ),
-                title: Text(user?.email ?? "Guest"),
-                trailing: const Icon(Icons.more_horiz),
+                title: Text(
+                  user?.email ?? "Guest",
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontFamily: 'Poppins',
+                  ),
+                ),
+                trailing: const Icon(Icons.settings, color: Colors.white),
                 onTap: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const UserProfile(),
+                      builder: (_) => const UserSettingsScreen(),
                     ),
                   );
                 },
@@ -167,14 +218,27 @@ class DrawerMenu extends StatelessWidget {
   }
 
   Widget _drawerItem(
-    IconData icon,
+    IconData? icon,
     String title,
     Color color,
-    VoidCallback onTap,
-  ) {
+    VoidCallback onTap, {
+    String? svgAsset,
+    double? iconSize,
+  }) {
     return ListTile(
-      leading: Icon(icon, color: color),
-      title: Text(title),
+      leading:
+          svgAsset != null
+              ? SvgPicture.asset(
+                svgAsset,
+                width: iconSize ?? 24,
+                height: iconSize ?? 24,
+                color: color,
+              )
+              : Icon(icon, color: color),
+      title: Text(
+        title,
+        style: const TextStyle(color: Colors.white, fontFamily: 'Poppins'),
+      ),
       onTap: onTap,
     );
   }
@@ -214,6 +278,37 @@ class DrawerMenu extends StatelessWidget {
                   }
                 },
                 child: const Text("Rename"),
+              ),
+            ],
+          ),
+    );
+  }
+
+  void _confirmDelete(
+    BuildContext context,
+    ProjectProvider provider,
+    String projectId,
+  ) {
+    showDialog(
+      context: context,
+      builder:
+          (_) => AlertDialog(
+            title: const Text("Delete Project"),
+            content: const Text(
+              "Are you sure you want to delete this project? This action cannot be undone.",
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text("Cancel"),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                onPressed: () async {
+                  await provider.deleteProject(projectId);
+                  Navigator.pop(context);
+                },
+                child: const Text("Delete"),
               ),
             ],
           ),

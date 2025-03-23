@@ -21,6 +21,10 @@ class ProjectProvider extends ChangeNotifier {
   /// ✅ **Fetch all projects for the logged-in user**
   Future<void> fetchUserProjects() async {
     String? userId = _auth.currentUser?.uid;
+    if (userId == null) {
+      print("❌ [fetchUserProjects] No user found!");
+      return;
+    }
 
     print("🔄 [fetchUserProjects] Fetching projects for user: $userId");
 
@@ -44,6 +48,10 @@ class ProjectProvider extends ChangeNotifier {
   /// ✅ **Get project by name**
   Future<ProjectModel?> getProjectByName(String projectName) async {
     String? userId = _auth.currentUser?.uid;
+    if (userId == null) {
+      print("❌ [getProjectByName] User not authenticated!");
+      return null;
+    }
 
     print("🔍 [getProjectByName] Searching for project: $projectName");
 
@@ -118,6 +126,10 @@ class ProjectProvider extends ChangeNotifier {
     String? imageUrl,
   }) async {
     String? userId = _auth.currentUser?.uid;
+    if (userId == null) {
+      print("❌ [addMessage] User not authenticated!");
+      return;
+    }
 
     final projectRef = _firestore
         .collection("users")
@@ -143,6 +155,10 @@ class ProjectProvider extends ChangeNotifier {
   /// ✅ **Load Project Chat Messages**
   Future<void> loadProjectChat(String projectId) async {
     String? userId = _auth.currentUser?.uid;
+    if (userId == null) {
+      print("❌ [loadProjectChat] User not logged in!");
+      return;
+    }
 
     final projectRef = _firestore
         .collection("users")
@@ -192,6 +208,7 @@ class ProjectProvider extends ChangeNotifier {
   /// ✅ **Upload Image to Firebase Storage**
   Future<String> uploadImageToFirebase(String projectId, File imageFile) async {
     String? userId = _auth.currentUser?.uid;
+    if (userId == null) return "";
 
     if (!imageFile.existsSync()) {
       print("❌ [uploadImageToFirebase] Error: File does not exist.");
@@ -219,6 +236,10 @@ class ProjectProvider extends ChangeNotifier {
     File? imageFile,
   ) async {
     String? userId = _auth.currentUser?.uid;
+    if (userId == null) {
+      print("❌ [addProject] User not authenticated!");
+      return;
+    }
 
     print(
       "✅ [addProject] Checking if project '$projectName' exists for user: $userId",
@@ -263,6 +284,7 @@ class ProjectProvider extends ChangeNotifier {
   /// ✅ Rename an existing project
   Future<void> renameProject(String projectId, String newName) async {
     String? userId = _auth.currentUser?.uid;
+    if (userId == null) return;
 
     final projectRef = _firestore
         .collection("users")
@@ -277,5 +299,78 @@ class ProjectProvider extends ChangeNotifier {
     } catch (e) {
       print("❌ [renameProject] Error: \$e");
     }
+  }
+
+  Future<void> shareToGallery({
+    required String projectId,
+    required String imageUrl,
+    required String prompt,
+    required String userName,
+  }) async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        // Fetch the user data from Firestore
+        final userDoc =
+            await FirebaseFirestore.instance
+                .collection('users')
+                .doc(user.uid)
+                .get();
+
+        // Safely access the first_name and last_name fields
+        String firstName = userDoc.data()?['first_name'] ?? 'Anonymous';
+        String lastName = userDoc.data()?['last_name'] ?? '';
+        String finalUserName =
+            '$firstName $lastName'; // Combine first and last name
+
+        String userImage =
+            user.photoURL ??
+            "https://default-image-url"; // If user doesn't have a profile image, use a default one
+
+        // Share the floor plan to the community gallery
+        await FirebaseFirestore.instance.collection('community_gallery').add({
+          'userName': finalUserName,
+          'imageUrl': imageUrl,
+          'prompt': prompt,
+          'userImage': userImage,
+          'timestamp': FieldValue.serverTimestamp(),
+        });
+
+        print("✅ [shareToGallery] Shared to community gallery");
+      } else {
+        print("❌ [shareToGallery] User is not authenticated");
+      }
+    } catch (e) {
+      print("❌ [shareToGallery] Error: $e");
+    }
+  }
+
+  /// ✅ Create new project from shared prompt and return projectId
+  Future<String?> createProjectFromCommunityPrompt(String prompt) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return null;
+
+    final newProjectRef =
+        FirebaseFirestore.instance
+            .collection("users")
+            .doc(user.uid)
+            .collection("projects")
+            .doc();
+
+    final projectId = newProjectRef.id;
+
+    await newProjectRef.set({
+      "id": projectId,
+      "userId": user.uid,
+      "name": "Community Prompt",
+      "messages": [],
+      "images": [],
+      "timestamp": FieldValue.serverTimestamp(),
+    });
+
+    // await addMessage(projectId: projectId, text: prompt, sender: "user");
+    await fetchUserProjects();
+
+    return projectId;
   }
 }

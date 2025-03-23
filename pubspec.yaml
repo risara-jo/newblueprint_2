@@ -45,6 +45,7 @@ flutter:
     - assets/fonts/  # Add fonts directory
     - assets/icons/newproject.svg
     - assets/icons/professionals.svg # Add your specific SVG asset
+    - assets/animations/landingscreenanimation.json
   fonts:
     - family: Poppins
       fonts:

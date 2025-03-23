@@ -5,10 +5,12 @@ import '../providers/project_provider.dart';
 import '../models/project_model.dart';
 
 class ChatScreen extends StatefulWidget {
+  final String? initialPrompt;
   final String projectId;
   final String projectName;
 
   const ChatScreen({
+    this.initialPrompt,
     super.key,
     required this.projectId,
     required this.projectName,

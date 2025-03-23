@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
-import '../widgets/voice_input_bar.dart'; // ✅ Import the reusable widget
-
+import '../widgets/voice_input_bar.dart';
 import '../widgets/drawer_menu.dart';
 import '../screens/chat_screen.dart';
 import '../providers/project_provider.dart';
+import '../theme.dart'; // ✅ Make sure AppColors is available
 
 class LandingScreen extends StatefulWidget {
   const LandingScreen({super.key});
@@ -47,7 +48,7 @@ class _LandingScreenState extends State<LandingScreen> {
         context,
         MaterialPageRoute(
           builder:
-              (context) => ChatScreen(
+              (_) => ChatScreen(
                 projectId: existingProject.id,
                 projectName: existingProject.name,
               ),
@@ -61,7 +62,7 @@ class _LandingScreenState extends State<LandingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 32, 33, 35),
+      backgroundColor: AppColors.background,
       drawer: DrawerMenu(
         onProjectSelected: (projectId) {
           final projectProvider = Provider.of<ProjectProvider>(
@@ -76,7 +77,7 @@ class _LandingScreenState extends State<LandingScreen> {
             context,
             MaterialPageRoute(
               builder:
-                  (context) => ChatScreen(
+                  (_) => ChatScreen(
                     projectId: selectedProject.id,
                     projectName: selectedProject.name,
                   ),
@@ -106,7 +107,7 @@ class _LandingScreenState extends State<LandingScreen> {
             children: [
               TextSpan(
                 text: 'Print',
-                style: TextStyle(color: Color(0xFF3E80D8)),
+                style: TextStyle(color: AppColors.primary),
               ),
             ],
           ),
@@ -116,11 +117,32 @@ class _LandingScreenState extends State<LandingScreen> {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const SizedBox(height: 200),
+          // ✅ Recolored Lottie Animation
+          Lottie.asset(
+            'assets/animations/landingscreenanimation.json',
+            width: 300,
+            height: 200,
+            repeat: true,
+            fit: BoxFit.contain,
+            delegates: LottieDelegates(
+              values: [
+                ValueDelegate.color(
+                  const ['**'], // Target all fills/strokes
+                  value: AppColors.primary, // Replace orange with themed blue
+                ),
+                ValueDelegate.opacity(
+                  const ['**'],
+                  value: 255, // ensure full visibility for lines
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 20),
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 20.0),
             child: Text(
-              "Hi there human, I’m Blu.\nYour personal house planing assistant.\n\nHow can I help you today?",
+              "Hi there human, I’m Blu.\nYour personal house planning assistant.\n\nHow can I help you today?",
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontFamily: 'Poppins',

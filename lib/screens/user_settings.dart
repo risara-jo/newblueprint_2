@@ -2,6 +2,7 @@ import '../models/user_profile_data.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import '../theme.dart';
 import 'profile_edit.dart';
 
 class UserSettingsScreen extends StatefulWidget {
@@ -50,100 +51,53 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
   void _logout() async {
     await FirebaseAuth.instance.signOut();
     if (!mounted) return;
-    Navigator.pushReplacementNamed(context, '/login');
+    Navigator.pushReplacementNamed(context, '/auth');
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        title: const Text('User Settings'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
+      ),
       body:
           _isLoading
               ? const Center(child: CircularProgressIndicator())
-              : SafeArea(
-                child: Stack(
+              : SingleChildScrollView(
+                padding: const EdgeInsets.all(20),
+                child: Column(
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 140, 20, 20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Center(
-                            child: CircleAvatar(
-                              radius: 70,
-                              backgroundImage:
-                                  profileImageUrl.isNotEmpty
-                                      ? NetworkImage(profileImageUrl)
-                                      : const AssetImage(
-                                            'assets/images/profile.jpg',
-                                          )
-                                          as ImageProvider,
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          Center(
-                            child: Text(
-                              name,
-                              style: const TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 30),
-                          ListTile(
-                            contentPadding: EdgeInsets.zero,
-                            leading: const Icon(Icons.person_outline),
-                            title: Text(
-                              name,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            subtitle: Text(email),
-                          ),
-                          ListTile(
-                            contentPadding: EdgeInsets.zero,
-                            leading: const Icon(Icons.phone_outlined),
-                            title: Text(phone),
-                          ),
-                          ListTile(
-                            contentPadding: EdgeInsets.zero,
-                            leading: const Icon(Icons.location_on_outlined),
-                            title: Text(address),
-                          ),
-                          const Spacer(),
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton.icon(
-                              onPressed: _logout,
-                              icon: const Icon(Icons.logout),
-                              label: const Text("Logout"),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF3057E1),
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 14,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
+                    CircleAvatar(
+                      radius: 70,
+                      backgroundImage:
+                          profileImageUrl.isNotEmpty
+                              ? NetworkImage(profileImageUrl)
+                              : const AssetImage('assets/images/profile.jpg')
+                                  as ImageProvider,
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                      name,
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 10,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text('Back', style: TextStyle(fontSize: 16)),
-                          GestureDetector(
-                            onTap: () {
+                    const SizedBox(height: 30),
+                    _infoTile(Icons.person_outline, name, subtitle: email),
+                    _infoTile(Icons.phone_outlined, phone),
+                    _infoTile(Icons.location_on_outlined, address),
+                    const SizedBox(height: 30),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -159,20 +113,48 @@ class _UserSettingsScreenState extends State<UserSettingsScreen> {
                                 ),
                               );
                             },
-                            child: const Text(
-                              'Edit',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
+                            icon: const Icon(Icons.edit, color: Colors.white),
+                            label: const Text(
+                              "Edit",
+                              style: TextStyle(color: Colors.white),
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: _logout,
+                            icon: const Icon(Icons.logout),
+                            label: const Text("Logout"),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red,
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ),
+    );
+  }
+
+  Widget _infoTile(IconData icon, String title, {String? subtitle}) {
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      leading: Icon(icon, color: Colors.white),
+      title: Text(
+        title,
+        style: const TextStyle(
+          fontWeight: FontWeight.w600,
+          color: Colors.white,
+        ),
+      ),
+      subtitle:
+          subtitle != null
+              ? Text(subtitle, style: const TextStyle(color: Colors.white70))
+              : null,
     );
   }
 }

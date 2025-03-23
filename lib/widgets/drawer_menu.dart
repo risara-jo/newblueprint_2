@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../providers/project_provider.dart';
-import '../screens/user_settings.dart'; // ✅ Uses UserSettingsScreen now
+import '../screens/user_settings.dart';
 import '../screens/vendor_list_screen.dart';
 import '../screens/community_gallery_screen.dart';
 import '../screens/chat_screen.dart';
@@ -28,7 +28,7 @@ class DrawerMenu extends StatelessWidget {
             children: [
               const SizedBox(height: 40),
 
-              // 🔹 Action Buttons
+              // 🔹 Top Buttons
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Column(
@@ -61,6 +61,7 @@ class DrawerMenu extends StatelessWidget {
                       "Professionals",
                       AppColors.primary,
                       () {
+                        Navigator.pop(context);
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -76,6 +77,7 @@ class DrawerMenu extends StatelessWidget {
                       "Community Gallery",
                       AppColors.primary,
                       () {
+                        Navigator.pop(context);
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -92,7 +94,7 @@ class DrawerMenu extends StatelessWidget {
 
               const Divider(),
 
-              // 🔹 Project List
+              // 🔹 Projects List
               Expanded(
                 child:
                     projectProvider.projects.isEmpty
@@ -143,7 +145,6 @@ class DrawerMenu extends StatelessWidget {
                                             project.id,
                                             project.name,
                                           ),
-                                      tooltip: "Rename Project",
                                     ),
                                     IconButton(
                                       icon: const Icon(
@@ -157,7 +158,6 @@ class DrawerMenu extends StatelessWidget {
                                             projectProvider,
                                             project.id,
                                           ),
-                                      tooltip: "Delete Project",
                                     ),
                                   ],
                                 ),
@@ -185,7 +185,7 @@ class DrawerMenu extends StatelessWidget {
 
               const Divider(),
 
-              // 🔹 Footer - User Info
+              // 🔹 User Footer
               ListTile(
                 leading: CircleAvatar(
                   radius: 22,
@@ -201,6 +201,7 @@ class DrawerMenu extends StatelessWidget {
                 ),
                 trailing: const Icon(Icons.settings, color: Colors.white),
                 onTap: () {
+                  Navigator.of(context).pop(); // Close drawer
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -255,7 +256,7 @@ class DrawerMenu extends StatelessWidget {
     showDialog(
       context: context,
       builder:
-          (context) => AlertDialog(
+          (_) => AlertDialog(
             title: const Text("Rename Project"),
             content: TextField(
               controller: _controller,

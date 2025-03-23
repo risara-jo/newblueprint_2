@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import '../widgets/search_bar.dart';
-import '../widgets/house_plan_card.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
+
 import '../providers/project_provider.dart';
+import '../widgets/search_bar.dart';
+import '../widgets/house_plan_card.dart';
 import './chat_screen.dart';
+import '../theme.dart';
 
 class CommunityGalleryScreen extends StatelessWidget {
   const CommunityGalleryScreen({super.key});
@@ -12,19 +14,23 @@ class CommunityGalleryScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.menu, color: Colors.black),
-          onPressed: () {}, // Implement drawer or menu action
-        ),
-        title: const Text(
-          "BluePrint",
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
+        backgroundColor: AppColors.background,
+        title: const Text.rich(
+          TextSpan(
+            text: 'Blue',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: AppColors.white,
+            ),
+            children: [
+              TextSpan(
+                text: 'Print',
+                style: TextStyle(color: AppColors.primary),
+              ),
+            ],
           ),
         ),
         centerTitle: true,
@@ -32,7 +38,7 @@ class CommunityGalleryScreen extends StatelessWidget {
       body: Column(
         children: [
           const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.0),
+            padding: EdgeInsets.fromLTRB(16, 8, 16, 12),
             child: SearchBarWidget(),
           ),
           Expanded(
@@ -61,9 +67,22 @@ class CommunityGalleryScreen extends StatelessWidget {
                       };
                     }).toList();
 
-                return ListView.builder(
-                  padding: const EdgeInsets.all(16.0),
+                if (galleryItems.isEmpty) {
+                  return const Center(
+                    child: Text(
+                      "No shared designs yet.",
+                      style: TextStyle(color: AppColors.white70),
+                    ),
+                  );
+                }
+
+                return ListView.separated(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 10,
+                  ),
                   itemCount: galleryItems.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 16),
                   itemBuilder: (context, index) {
                     final item = galleryItems[index];
                     return GestureDetector(

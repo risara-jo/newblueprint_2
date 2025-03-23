@@ -61,7 +61,7 @@ class _LandingScreenState extends State<LandingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF202123),
+      backgroundColor: const Color.fromARGB(255, 32, 33, 35),
       drawer: DrawerMenu(
         onProjectSelected: (projectId) {
           final projectProvider = Provider.of<ProjectProvider>(

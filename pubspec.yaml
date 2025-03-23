@@ -29,6 +29,7 @@ dependencies:
   siri_wave: ^2.3.0
   speech_to_text: ^7.0.0
   flutter_svg: ^1.0.3
+  lottie: ^2.6.0
 
 dev_dependencies:
   flutter_test:

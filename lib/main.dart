@@ -6,8 +6,9 @@ import 'services/auth_service.dart';
 import 'providers/project_provider.dart';
 import 'screens/auth_screen.dart';
 import 'screens/landing_screen.dart';
+import 'screens/onboarding_screen.dart'; // ✅ New
 import 'firebase_options.dart';
-import 'theme.dart'; // ✅ Import your custom theme
+import 'theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -38,18 +39,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(
-          create: (_) {
-            print("✅ AuthService Provider Initialized");
-            return AuthService();
-          },
-        ),
-        ChangeNotifierProvider(
-          create: (_) {
-            print("✅ ProjectProvider Initialized");
-            return ProjectProvider();
-          },
-        ),
+        ChangeNotifierProvider(create: (_) => AuthService()),
+        ChangeNotifierProvider(create: (_) => ProjectProvider()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -88,28 +79,10 @@ class MyApp extends StatelessWidget {
             ),
           ),
         ),
-        initialRoute: '/',
+        home: const OnboardingScreen(), // ✅ Launch here
         routes: {
-          '/':
-              (context) => Consumer<AuthService>(
-                builder: (context, authService, child) {
-                  if (authService.currentUser != null) {
-                    print("🔄 User is Logged In - Navigating to LandingScreen");
-                    return const LandingScreen();
-                  } else {
-                    print("🔄 No User Found - Navigating to AuthScreen");
-                    return const AuthScreen();
-                  }
-                },
-              ),
-          '/auth': (context) {
-            print("🔄 Navigating to AuthScreen");
-            return const AuthScreen();
-          },
-          '/landing': (context) {
-            print("🔄 Navigating to LandingScreen");
-            return const LandingScreen();
-          },
+          '/auth': (context) => const AuthScreen(),
+          '/landing': (context) => const LandingScreen(),
         },
       ),
     );
